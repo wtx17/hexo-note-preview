@@ -1,0 +1,249 @@
+.hexo-block,
+.hexo-block-reading-segment,
+.hexo-block-live-line,
+.hexo-block-live-embed {
+  --hexo-note-color: var(--interactive-accent);
+  --hexo-note-background: color-mix(
+    in srgb,
+    var(--hexo-note-color) 10%,
+    var(--background-primary)
+  );
+}
+
+.hexo-note-primary {
+  --hexo-note-color: var(--interactive-accent);
+}
+
+.hexo-note-info {
+  --hexo-note-color: var(--color-blue);
+}
+
+.hexo-note-success {
+  --hexo-note-color: var(--color-green);
+}
+
+.hexo-note-warning {
+  --hexo-note-color: var(--color-orange);
+}
+
+.hexo-note-danger {
+  --hexo-note-color: var(--color-red);
+}
+
+.hexo-note-secondary {
+  --hexo-note-color: var(--text-muted);
+}
+
+.hexo-note-light {
+  --hexo-note-color: var(--text-normal);
+}
+
+.hexo-block-parent-primary {
+  --hexo-parent-color: var(--interactive-accent);
+}
+
+.hexo-block-parent-info {
+  --hexo-parent-color: var(--color-blue);
+}
+
+.hexo-block-parent-success {
+  --hexo-parent-color: var(--color-green);
+}
+
+.hexo-block-parent-warning {
+  --hexo-parent-color: var(--color-orange);
+}
+
+.hexo-block-parent-danger {
+  --hexo-parent-color: var(--color-red);
+}
+
+.hexo-block-parent-secondary {
+  --hexo-parent-color: var(--text-muted);
+}
+
+.hexo-block-parent-light {
+  --hexo-parent-color: var(--text-normal);
+}
+
+.hexo-note {
+  margin: 1em 0;
+  padding: 0.8em 1em;
+  border-radius: var(--radius-s);
+  background: var(--hexo-note-background);
+}
+
+.markdown-rendered .hexo-note > :first-child,
+.markdown-rendered .hexo-fold-content > :first-child {
+  margin-top: 0;
+}
+
+.markdown-rendered .hexo-note > :last-child,
+.markdown-rendered .hexo-fold-content > :last-child {
+  margin-bottom: 0;
+}
+
+.hexo-fold {
+  margin: 1em 0;
+  overflow: hidden;
+  border-radius: var(--radius-s);
+  background: var(--hexo-note-background);
+}
+
+.hexo-fold-title {
+  padding: 0.65em 1em;
+  border-bottom: 1px solid color-mix(in srgb, var(--hexo-note-color) 30%, transparent);
+  color: var(--hexo-note-color);
+  font-weight: var(--font-semibold);
+}
+
+.hexo-fold-content {
+  padding: 0.8em 1em;
+}
+
+.markdown-rendered .hexo-block-reading-segment {
+  box-sizing: border-box;
+  display: flow-root;
+  margin: 0 !important;
+  padding-block: 0.35em;
+  padding-inline-start: 1em;
+  padding-inline-end: 0.75em;
+  background: var(--hexo-note-background);
+}
+
+.markdown-rendered .hexo-block-reading-segment > :first-child {
+  margin-block-start: 0 !important;
+}
+
+.markdown-rendered .hexo-block-reading-segment > :last-child {
+  margin-block-end: 0 !important;
+}
+
+.markdown-rendered .hexo-block-reading-depth-2 {
+  --hexo-parent-background: color-mix(
+    in srgb,
+    var(--hexo-parent-color) 10%,
+    var(--background-primary)
+  );
+  padding-inline: 2em;
+  background:
+    linear-gradient(var(--hexo-note-background), var(--hexo-note-background)) 1em
+      0 / calc(100% - 2em) 100% no-repeat,
+    var(--hexo-parent-background);
+}
+
+.markdown-rendered .hexo-block-reading-marker {
+  min-height: 0.4em;
+  padding-block: 0;
+}
+
+.markdown-rendered .hexo-block-reading-start {
+  padding-top: 0.35em;
+}
+
+.markdown-rendered
+  .hexo-note-reading-segment.hexo-block-reading-start
+  + .hexo-note-reading-segment:not(.hexo-block-reading-marker) {
+  padding-top: 0;
+}
+
+.markdown-rendered .hexo-block-reading-spacer {
+  height: 0.5em;
+}
+
+.markdown-rendered .hexo-block-reading-depth-1.hexo-block-reading-start {
+  border-radius: var(--radius-s) var(--radius-s) 0 0;
+}
+
+.markdown-rendered .hexo-block-reading-depth-1.hexo-block-reading-end {
+  border-radius: 0 0 var(--radius-s) var(--radius-s);
+}
+
+.markdown-source-view.mod-cm6 .cm-line.hexo-block-live-line,
+.markdown-source-view.mod-cm6 .cm-embed-block.hexo-block-live-embed {
+  box-sizing: border-box;
+  border-inline-start: 1em solid transparent !important;
+  padding-inline-end: 0.75em !important;
+  background: var(--hexo-note-background);
+}
+
+.markdown-source-view.mod-cm6
+  .cm-line.hexo-block-live-line
+  .cm-embed-block {
+  background: transparent;
+  box-shadow: none;
+}
+
+.markdown-source-view.mod-cm6
+  .cm-embed-block.hexo-block-live-embed:not(.cm-table-widget, .cm-lang-base):hover {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.markdown-source-view.mod-cm6 .cm-line.hexo-block-live-depth-2,
+.markdown-source-view.mod-cm6 .cm-embed-block.hexo-block-live-depth-2 {
+  --hexo-parent-background: color-mix(
+    in srgb,
+    var(--hexo-parent-color) 10%,
+    var(--background-primary)
+  );
+  border-inline-start-width: 2em !important;
+  padding-inline-end: 2em !important;
+  background:
+    linear-gradient(var(--hexo-note-background), var(--hexo-note-background)) 1em
+      0 / calc(100% - 2em) 100% no-repeat,
+    var(--hexo-parent-background);
+  background-origin: border-box;
+}
+
+.markdown-source-view.mod-cm6 .cm-embed-block.hexo-block-live-embed .math,
+.markdown-source-view.mod-cm6 .cm-embed-block.hexo-block-live-embed .math-block,
+.markdown-source-view.mod-cm6
+  .cm-line.hexo-block-live-line
+  .cm-embed-block
+  .math,
+.markdown-source-view.mod-cm6
+  .cm-line.hexo-block-live-line
+  .cm-embed-block
+  .math-block {
+  background: transparent;
+}
+
+.markdown-source-view.mod-cm6 .cm-line.hexo-block-live-start {
+  padding-top: 0.35em !important;
+  border-radius: var(--radius-s) var(--radius-s) 0 0;
+}
+
+.markdown-source-view.mod-cm6 .cm-line.hexo-block-live-end {
+  min-height: 0.4em;
+  border-radius: 0 0 var(--radius-s) var(--radius-s);
+}
+
+.markdown-source-view.mod-cm6
+  .cm-line.hexo-block-live-depth-2.hexo-block-live-start,
+.markdown-source-view.mod-cm6
+  .cm-line.hexo-block-live-depth-2.hexo-block-live-end {
+  border-radius: 0;
+}
+
+.markdown-source-view.mod-cm6 .cm-line.hexo-block-live-marker-active {
+  color: var(--text-faint);
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-small);
+}
+
+.hexo-block-live-label,
+.hexo-block-reading-title {
+  display: inline-block;
+  color: var(--hexo-note-color);
+  font-family: var(--font-interface);
+  font-size: var(--font-ui-smaller);
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.04em;
+}
+
+.hexo-fold-live-label::before,
+.hexo-fold-reading-title::before {
+  content: "▾";
+  margin-right: 0.4em;
+}
