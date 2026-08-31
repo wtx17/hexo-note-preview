@@ -156,7 +156,7 @@ function findBlockMarkers(text, requireOwnLine = true) {
   return markers;
 }
 
-function textPointAt(element, offset) {
+function textPointAt(element, offset, preferNext = false) {
   const view = element.ownerDocument.defaultView;
   const walker = element.ownerDocument.createTreeWalker(
     element,
@@ -168,7 +168,9 @@ function textPointAt(element, offset) {
   while ((node = walker.nextNode())) {
     last = node;
     const length = node.nodeValue.length;
-    if (offset <= length) return { node, offset };
+    if (offset < length || (!preferNext && offset === length)) {
+      return { node, offset };
+    }
     offset -= length;
   }
 
@@ -177,15 +179,35 @@ function textPointAt(element, offset) {
     : { node: element, offset: 0 };
 }
 
-function deleteTextRange(element, from, to) {
-  if (from >= to) return;
+function deleteTextPrefix(element, to) {
+  if (to <= 0) return;
 
-  const start = textPointAt(element, from);
   const end = textPointAt(element, to);
   const range = element.ownerDocument.createRange();
-  range.setStart(start.node, start.offset);
+  range.setStart(element, 0);
   range.setEnd(end.node, end.offset);
   range.deleteContents();
+}
+
+function deleteTextSuffix(element, from) {
+  const length = (element.textContent || "").length;
+  if (from >= length) return;
+
+  // At a text boundary, the marker may follow rendered math whose DOM has no
+  // text nodes. Prefer the next text node so that math stays with the segment
+  // before the marker.
+  const start = textPointAt(element, from, true);
+  const range = element.ownerDocument.createRange();
+  range.setStart(start.node, start.offset);
+  range.setEnd(element, element.childNodes.length);
+  range.deleteContents();
+}
+
+function hasReadingContent(element) {
+  return Boolean(
+    normalizeText(element.textContent || "").trim() ||
+      element.querySelector(".math"),
+  );
 }
 
 function removeBoundaryBreak(element, fromStart) {
@@ -216,11 +238,11 @@ function removeBoundaryBreak(element, fromStart) {
 function cloneReadingUnitSegment(unit, from, to) {
   const clone = unit.cloneNode(true);
   const length = (clone.textContent || "").length;
-  deleteTextRange(clone, to, length);
-  deleteTextRange(clone, 0, from);
+  deleteTextSuffix(clone, to);
+  deleteTextPrefix(clone, from);
   if (from > 0) removeBoundaryBreak(clone, true);
   if (to < length) removeBoundaryBreak(clone, false);
-  if (!normalizeText(clone.textContent || "").trim()) return null;
+  if (!hasReadingContent(clone)) return null;
 
   clone.removeAttribute("id");
   return clone;
