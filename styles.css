@@ -168,6 +168,14 @@
 }
 
 .markdown-source-view.mod-cm6
+  .cm-content
+  > .cm-embed-block.hexo-block-live-embed {
+  /* Obsidian's paint containment clips backgrounds at fractional math heights.
+     Keep the formatting context without the clip that leaves pixel seams. */
+  contain: layout !important;
+}
+
+.markdown-source-view.mod-cm6
   .cm-line.hexo-block-live-line
   .cm-embed-block {
   background: transparent;
@@ -178,6 +186,7 @@
   .cm-embed-block.hexo-block-live-embed:not(.cm-table-widget, .cm-lang-base):hover {
   border-radius: 0;
   box-shadow: none;
+  overflow: visible;
 }
 
 .markdown-source-view.mod-cm6 .cm-line.hexo-block-live-depth-2,
@@ -244,6 +253,11 @@
 
 .hexo-fold-live-label::before,
 .hexo-fold-reading-title::before {
-  content: "▾";
+  content: "";
+  display: inline-block;
+  width: 0.75cap;
+  height: 0.75cap;
   margin-right: 0.4em;
+  background: currentColor;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
