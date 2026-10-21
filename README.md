@@ -34,8 +34,9 @@ Tag markers must start at the beginning of a line. This keeps them as top-level
 Hexo tags: markers inside lists, blockquotes, fenced/indented code, raw blocks,
 HTML comments, or front matter are intentionally left untouched.
 
-A closing tag can immediately follow a Markdown list; no separating blank line
-is required for the preview.
+A closing tag can immediately follow a Markdown list or blockquote; no
+separating blank line is required for the preview. In Live Preview, hidden
+closing tags keep a compact bottom edge without extending the quote border.
 
 Nested blocks keep the parent background and render the child block inset from
 it, including around rendered math blocks.

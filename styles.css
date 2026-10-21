@@ -228,6 +228,18 @@
   border-radius: 0 0 var(--radius-s) var(--radius-s);
 }
 
+/* A closing Hexo tag can be parsed as a lazy blockquote continuation. Hide
+   its inherited quote border, and collapse only the replaced marker's line. */
+.markdown-source-view.mod-cm6
+  .cm-line.hexo-block-live-end.HyperMD-quote::before {
+  display: none;
+}
+
+.markdown-source-view.mod-cm6
+  .cm-line.hexo-block-live-end:not(.hexo-block-live-marker-active) {
+  line-height: 0;
+}
+
 .markdown-source-view.mod-cm6
   .cm-line.hexo-block-live-depth-2.hexo-block-live-start,
 .markdown-source-view.mod-cm6
