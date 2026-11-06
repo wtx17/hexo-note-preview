@@ -1,4 +1,4 @@
-const { Plugin, editorLivePreviewField } = require("obsidian");
+const { Plugin, TFile, editorLivePreviewField } = require("obsidian");
 const { StateField } = require("@codemirror/state");
 const {
   Decoration,
@@ -116,7 +116,7 @@ function parseMarker(text) {
 
 function markerKey(marker) {
   if (!marker) return "";
-  if (marker.position === "end") return `end:${marker.kind}`;
+  if (marker.position !== "start") return `${marker.position}:${marker.kind}`;
   const { kind, type, label } = marker.definition;
   return `start:${kind}:${type}:${label}`;
 }
@@ -125,6 +125,12 @@ function parseBlockEnd(text) {
   const source = normalizeText(text);
   if (NOTE_END.test(source)) return "note";
   if (FOLD_END.test(source)) return "fold";
+  return null;
+}
+
+function parseRawBoundary(text) {
+  if (RAW_START.test(text)) return { position: "raw", kind: "start" };
+  if (RAW_END.test(text)) return { position: "raw", kind: "end" };
   return null;
 }
 
@@ -142,7 +148,8 @@ function findBlockMarkers(text, requireOwnLine = true) {
       !text.slice(pattern.lastIndex, lineEnd).trim();
 
     if (requireOwnLine && !isOwnLine) continue;
-    const marker = parseMarker(match[0]);
+    const marker =
+      parseMarker(match[0]) || (isOwnLine && parseRawBoundary(match[0]));
     if (!marker) continue;
 
     markers.push({
@@ -206,7 +213,7 @@ function deleteTextSuffix(element, from) {
 function hasReadingContent(element) {
   return Boolean(
     normalizeText(element.textContent || "").trim() ||
-      element.querySelector(".math"),
+      element.querySelector(".math, img"),
   );
 }
 
@@ -270,7 +277,7 @@ function paragraphForReadingUnit(unit) {
   return null;
 }
 
-function prepareReadingMarkers(container, expectedMarkers) {
+function prepareReadingMarkers(container, expectedMarkers, requireOwnLine) {
   let expectedIndex = 0;
   const matchExpected = (candidate) => {
     if (!expectedMarkers) return candidate;
@@ -293,10 +300,10 @@ function prepareReadingMarkers(container, expectedMarkers) {
     if (!expectedMarkers && !paragraphForReadingUnit(unit)) continue;
 
     const text = unit.textContent || "";
-    const markers = findBlockMarkers(text, !expectedMarkers)
+    const markers = findBlockMarkers(text, requireOwnLine)
       .filter((marker) => !markerInsideSkippedElement(unit, marker))
       .map((marker) => ({ ...marker, resolved: matchExpected(marker.marker) }))
-      .filter((marker) => marker.resolved);
+      .filter(({ resolved }) => resolved && resolved.position !== "raw");
     if (markers.length === 0) continue;
 
     const output = [];
@@ -397,7 +404,7 @@ function blockLine(definition, hierarchy, position) {
   };
 }
 
-function buildReadingDocument(source) {
+function buildReadingDocument(source, { includeRawBoundaries = false } = {}) {
   const stackBeforeLine = [];
   const lineBlocks = new Map();
   const bodyBlocks = new Map();
@@ -424,7 +431,13 @@ function buildReadingDocument(source) {
     const line = lines[lineNumber];
     stackBeforeLine.push(openBlocks.slice());
 
+    const wasRaw = protectedState.raw;
     if (isProtectedSourceLine(line, lineNumber, protectedState)) {
+      // Track visible raw delimiters so their contents cannot consume later markers.
+      if (includeRawBoundaries && protectedState.raw !== wasRaw) {
+        const kind = protectedState.raw ? "start" : "end";
+        markers.push({ line: lineNumber, marker: { position: "raw", kind } });
+      }
       addBodyLine(lineNumber);
       continue;
     }
@@ -506,7 +519,12 @@ function replaceReadingMarker(unit, segment, depth, position) {
   }
 }
 
-function renderReadingSection(element, initialStack, expectedMarkers = null) {
+function renderReadingSection(
+  element,
+  initialStack,
+  expectedMarkers = null,
+  { requireOwnLine = !expectedMarkers } = {},
+) {
   if (
     Array.from(element.children).some((child) =>
       child.classList.contains("hexo-block-reading-segment"),
@@ -515,7 +533,7 @@ function renderReadingSection(element, initialStack, expectedMarkers = null) {
     return;
   }
 
-  prepareReadingMarkers(element, expectedMarkers);
+  prepareReadingMarkers(element, expectedMarkers, requireOwnLine);
   const stack = initialStack.slice();
   const units = Array.from(element.children);
 
@@ -824,6 +842,29 @@ module.exports = class HexoNotePreviewPlugin extends Plugin {
     this.registerMarkdownPostProcessor((element, context) => {
       const section = context.getSectionInfo(element);
       if (!section) {
+        // PDF export renders the whole note in a separate print container.
+        if (element.matches(".print > .markdown-preview-view.markdown-rendered")) {
+          const file = this.app.vault.getAbstractFileByPath(context.sourcePath);
+          if (!(file instanceof TFile)) return;
+
+          return this.app.vault.cachedRead(file).then(
+            (source) => {
+              const { markers } = buildReadingDocument(source, {
+                includeRawBoundaries: true,
+              });
+              if (markers.length) {
+                renderReadingSection(element, [], markers, { requireOwnLine: true });
+              }
+            },
+            (error) => {
+              console.warn(
+                "Hexo Note Preview could not read the note for PDF export",
+                error,
+              );
+            },
+          );
+        }
+
         renderStandaloneReadingBlocks(element);
         return;
       }
